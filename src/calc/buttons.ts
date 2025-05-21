@@ -3,15 +3,14 @@ import {AddButton, DivideButton, MultiplyButton, SubtractButton} from "./btn/ope
 import {ClearButton, EqualsButton} from "./btn/functional-button";
 import {CalculatorModel} from "./model";
 import {CalculatorButton} from "./btn";
-import {CalculatorDisplay} from "./display";
 
 export class Buttons {
     model: CalculatorModel
     buttons: CalculatorButton[]
     root: HTMLElement
 
-    constructor(display: CalculatorDisplay) {
-        this.model = new CalculatorModel(display)
+    constructor(model: CalculatorModel) {
+        this.model = model
         this.buttons = [
             new NumberButton(this.model, '7'),
             new NumberButton(this.model, '8'),

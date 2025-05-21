@@ -1,30 +1,38 @@
 import {CalculatorDisplay} from "./display";
-import type {Operator} from "./btn/operator";
+import type {IOperator} from "./btn/operator";
+import type {ICalculatorSubscriber} from "./subscriber";
 
 export class CalculatorModel {
     private display: CalculatorDisplay
 
     private firstOperand: number | null = null
     private secondOperand: number | null = null
-    private operator: Operator | null = null
+    private operator: IOperator | null = null
     private operationComplete: boolean = false
+    private subscribers: ICalculatorSubscriber[] = []
 
     constructor(display: CalculatorDisplay) {
         this.display = display
     }
 
-    public addDigit(digit: number) {
+    public addSubscriber(subscriber: ICalculatorSubscriber) {
+        this.subscribers.push(subscriber)
+    }
+
+    public addDigit(num: number) {
         if (this.operationComplete) {
             this.operationComplete = false
-            this.firstOperand = digit
-            this.display.setDigit(this.firstOperand)
+            this.firstOperand = num
+            this.subscribers.forEach(s => s.addDigit({digit: num}))
         } else {
             if (this.operator === null) {
-                this.firstOperand = parseInt(`${this.firstOperand ?? ''}${digit}`)
-                this.display.setDigit(this.firstOperand)
+                const digit = parseInt(`${this.firstOperand ?? ''}${num}`)
+                this.firstOperand = digit
+                this.subscribers.forEach(s => s.addDigit({digit: digit}))
             } else {
-                this.secondOperand = parseInt(`${this.secondOperand ?? ''}${digit}`)
-                this.display.setDigit(this.secondOperand)
+                const digit = parseInt(`${this.secondOperand ?? ''}${num}`)
+                this.secondOperand = digit
+                this.subscribers.forEach(s => s.addDigit({digit: digit}))
             }
         }
 
@@ -33,21 +41,33 @@ export class CalculatorModel {
     public calculation() {
         if (this.firstOperand !== null &&
             this.secondOperand !== null && this.operator !== null) {
+            const first = this.firstOperand
+            const second = this.secondOperand
+            const operator = this.operator
             let result = this.operator.calculate(this.firstOperand, this.secondOperand)
-            this.operationComplete = true
+
+            this.subscribers.forEach(s => s.calculated({
+                firstOperand: first,
+                secondOperand: second,
+                operator: operator,
+                result: result
+            }))
+
             this.firstOperand = result
+            this.operationComplete = true
             this.operator = null
             this.secondOperand = null
-
-            this.display.setDigit(this.firstOperand as number)
-            this.display.expressions.clear()
         }
     }
 
-    public addOperation(operator: Operator) {
+    public addOperation(operator: IOperator) {
         if (this.firstOperand !== null) {
             this.operator = operator
-            this.display.expressions.setExpression(`${operator.getExpression(this.firstOperand)}`)
+            const first = this.firstOperand
+            this.subscribers.forEach(s => s.addOperator({
+                firstOperand: first,
+                operator,
+            }))
             this.operationComplete = false
         }
         if (this.firstOperand !== null &&
@@ -55,7 +75,6 @@ export class CalculatorModel {
             this.calculation()
             this.addOperation(operator)
         }
-        this.display.clear()
     }
 
     public clear() {

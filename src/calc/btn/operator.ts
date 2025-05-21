@@ -1,9 +1,9 @@
-export interface Operator {
+export interface IOperator {
     calculate(firstOperand: number, secondOperand: number): number
     getExpression(firstOperand: number): string
 }
 
-export class AddOperator implements Operator{
+export class AddOperator implements IOperator{
     calculate(firstOperand: number, secondOperand: number): number {
         return firstOperand + secondOperand;
     }
@@ -12,7 +12,7 @@ export class AddOperator implements Operator{
     }
 }
 
-export class SubtractOperator implements Operator{
+export class SubtractOperator implements IOperator{
     calculate(firstOperand: number, secondOperand: number): number {
         return firstOperand - secondOperand;
     }
@@ -21,7 +21,7 @@ export class SubtractOperator implements Operator{
     }
 }
 
-export class MultiplyOperator implements Operator{
+export class MultiplyOperator implements IOperator{
     calculate(firstOperand: number, secondOperand: number): number {
         return firstOperand * secondOperand;
     }
@@ -30,7 +30,7 @@ export class MultiplyOperator implements Operator{
     }
 }
 
-export class DivideOperator implements Operator{
+export class DivideOperator implements IOperator{
     calculate(firstOperand: number, secondOperand: number): number {
         return firstOperand / secondOperand;
     }
